@@ -1,0 +1,31 @@
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-web.xsd">
+	
+	<var name="order" class="com.niit.myridebackend.model.UserOrder" />
+	
+	<action-state id="processOrder">
+		<evaluate expression="userOrderDao.getUserOrderById(requestParameters.userOrderId)" result="order" />
+		<transition to="shippingAddress" />
+	</action-state>
+	
+	<view-state id="shippingAddress" view="shippingAddress.jsp" model="order">
+		<transition on="shippingAddressChecked" to="updateAddress" />
+	</view-state>
+	
+	<action-state id="updateAddress">
+		<evaluate expression="userDao.update(order.cart.user)" />
+		<transition to="orderSummary" />
+	</action-state>
+	
+	<view-state id="orderSummary" view="orderSummary.jsp">
+		<transition on="orderConfirmed" to="clearCart" />
+	</view-state>
+	
+	<action-state id="clearCart">
+		<evaluate expression="itemDao.removeAll(order.cart)" />
+		<transition to="confirmOrder" />
+	</action-state>
+	
+	<view-state id="confirmOrder" view="confirmOrder.jsp"></view-state>
+</flow>
